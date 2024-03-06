@@ -7,7 +7,7 @@
 
 options(warn = -1, scipen = 999)
 suppressMessages(if(!require(pacman)){install.packages('pacman')}else{library(pacman)})
-pacman::p_load(shiny,terra,leaflet,htmlwidgets,leaflet.extras,tidyverse)
+pacman::p_load(shiny,terra,leaflet,htmlwidgets,leaflet.extras)
 
 agex_sgn <- terra::vect('https://raw.githubusercontent.com/haachicanoy/agroclimExtremes/main/data/agex_features.gpkg')
 agex_sgn <- sf::st_as_sf(agex_sgn)
@@ -27,10 +27,10 @@ server <- function(input, output, session) {
   
   output$mymap <- leaflet::renderLeaflet({
     hl_opts <- leaflet::highlightOptions(fillColor = 'yellow', bringToFront = T)
-    leaflet() %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
-      addResetMapButton() %>%
-      addSearchOSM() %>%
+    leaflet() |>
+      addProviderTiles(providers$CartoDB.Positron) |>
+      addResetMapButton() |>
+      addSearchOSM() |>
       addPolygons(
         layerId   = ~ extreme_signature,
         group     = 'signatures',
@@ -61,28 +61,19 @@ server <- function(input, output, session) {
       rv$selected <- new_selected
       i <- which(agex_sgn$extreme_signature==new_selected$id) 
       agex_sgn_filtered <- agex_sgn[i,]
-      leaflet::leafletProxy('mymap') %>%
-        leaflet::clearGroup('selection') %>%
+      leaflet::leafletProxy('mymap') |>
+        leaflet::clearGroup('selection') |>
         addPolygons(
           layerId     = ~ extreme_signature,
           group       = 'selection',
           data        = agex_sgn_filtered,
           fillColor   = ~'cyan',
           weight      = 2,
-          # color       = '#666666',
           opacity     = 0.4,
           fillOpacity = 0.8)
-          # popup       = ~ paste("<div class='leaflet-popup-scrolled' style='max-width:250px;max-height:250px'", 
-          #                       '<br>',
-          #                       '<b>', 'Extreme signature: ', '</b>', extreme_signature, "<br>",
-          #                       '<b>', 'Crops diversity:  ', '</b>', crop_types_diversity, "<br>",
-          #                       '<b>', 'Value of production:  ', '</b>', value_of_production, "<br>",
-          #                       '<b>', 'Population density:  ', '</b>', population_density, "<br>",
-          #                       '<b>', 'Signature cohesion: ', '</b>', sgn_cohesion, "<br>",
-          #                       '<b>', 'Signature contiguity:  ', '</b>', sgn_contiguity, "<br>"))
     } else {
       rv$selected <- NULL
-      leaflet::leafletProxy('mymap') %>%
+      leaflet::leafletProxy('mymap') |>
         leaflet::clearGroup('selection')
     }
   })
